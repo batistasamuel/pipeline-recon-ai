@@ -1,0 +1,57 @@
+services:
+  recon:
+    build:
+      context: .
+    image: recon-ai:local
+    user: "${PUID:-1000}:${PGID:-1000}"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      RECON_ENGINE: ${RECON_ENGINE:-python}
+      RECON_OLLAMA_URL: http://ollama:11434
+      RECON_LOOPBACK_HOST: host.docker.internal
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:-}
+      NVIDIA_API_KEY: ${NVIDIA_API_KEY:-}
+    working_dir: /results
+    volumes:
+      - ./scope:/scope:ro
+      - ./config:/config:ro
+      - ./results:/results
+    depends_on:
+      - ollama
+  ollama:
+    image: ollama/ollama@sha256:292ee7945dfc3d5840a181f3ab86fedb1e66703e02c8af98b50f4da56b7e278c
+    environment:
+      LLAMA_ARG_CACHE_RAM: "0"
+    volumes:
+      - ollama_data:/root/.ollama
+  ui:
+    image: recon-ai:local
+    profiles: ["ui"]
+    depends_on:
+      - ollama
+    user: "${PUID:-1000}:${PGID:-1000}"
+    entrypoint: ["/opt/recon/venv/bin/python", "-m", "recon_ai.ui"]
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      RECON_DB: /results/recon.db
+      RECON_RESULTS: /results
+      RECON_UI_HOST: 0.0.0.0
+      RECON_UI_PORT: "8765"
+      RECON_OLLAMA_URL: http://ollama:11434
+      RECON_LOOPBACK_HOST: host.docker.internal
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:-}
+      NVIDIA_API_KEY: ${NVIDIA_API_KEY:-}
+    ports:
+      - "127.0.0.1:8765:8765"
+    volumes:
+      - ./scope:/scope:ro
+      - ./config:/config:ro
+      - ./results:/results
+volumes:
+  ollama_data:

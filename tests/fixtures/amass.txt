@@ -1,0 +1,4 @@
+example.com (FQDN) example.com
+www.example.com
+notexample.com
+evil.example.com.other.net

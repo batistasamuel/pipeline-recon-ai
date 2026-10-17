@@ -1,0 +1,1276 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recon — Controle de Segurança</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-main: #090d16;
+      --bg-surface: #111827;
+      --bg-card: #1f2937;
+      --border-color: #374151;
+      --border-focus: #38bdf8;
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --accent: #38bdf8;
+      --accent-hover: #0284c7;
+      --danger: #ef4444;
+      --danger-bg: rgba(239, 68, 68, 0.1);
+      --success: #22c55e;
+      --success-bg: rgba(34, 197, 94, 0.1);
+      --warning: #f59e0b;
+      --warning-bg: rgba(245, 158, 11, 0.1);
+      --radius: 10px;
+      --transition: all 0.2s ease-in-out;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: var(--text-main);
+      background: var(--bg-main);
+      line-height: 1.5;
+      padding-bottom: 60px;
+    }
+
+    header {
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-color);
+      padding: 24px 32px;
+      margin-bottom: 32px;
+    }
+
+    .header-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .lang-label {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    h1 {
+      font-size: 26px;
+      font-weight: 700;
+      margin: 0 0 6px;
+      letter-spacing: -0.025em;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    h1::before {
+      content: "";
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      background: var(--accent);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--accent);
+    }
+
+    h2 {
+      font-size: 20px;
+      font-weight: 600;
+      margin: 36px 0 16px;
+      color: #ffffff;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 8px;
+    }
+
+    p, .note {
+      color: var(--text-muted);
+      margin: 0;
+      font-size: 14px;
+    }
+
+    main {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 32px;
+    }
+
+    /* Cards e Blocos */
+    .counts {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 16px;
+      margin: 20px 0;
+    }
+
+    .counts div {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      padding: 16px;
+      border-radius: var(--radius);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .counts strong {
+      display: block;
+      font-size: 26px;
+      color: #ffffff;
+      font-family: 'JetBrains Mono', monospace;
+      margin-bottom: 4px;
+    }
+
+    /* Formulários */
+    form {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      background: var(--bg-surface);
+      padding: 24px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border-color);
+      margin: 16px 0;
+    }
+
+    #scan-form {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      align-items: start;
+    }
+
+    #scan-form > label:nth-child(1) { grid-column: span 12; }
+    #scan-form > label:nth-child(2),
+    #scan-form > label:nth-child(3) { grid-column: span 6; }
+    #scan-form > label:nth-child(4),
+    #scan-form > label:nth-child(5),
+    #scan-form > label:nth-child(6) { grid-column: span 6; }
+    #scan-form > .note-har { grid-column: span 12; }
+    #scan-form > #tools { grid-column: span 12; }
+    #scan-form > .actions { grid-column: span 12; }
+
+    @media(max-width: 900px) {
+      #scan-form > label:nth-child(2),
+      #scan-form > label:nth-child(3),
+      #scan-form > label:nth-child(4),
+      #scan-form > label:nth-child(5),
+      #scan-form > label:nth-child(6) { grid-column: span 12; }
+    }
+
+    label {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    input[type="text"], input[type="number"], textarea, select {
+      background: var(--bg-main);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 10px 14px;
+      border-radius: 8px;
+      font: 14px 'Inter', sans-serif;
+      outline: none;
+      transition: var(--transition);
+      width: 100%;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    input[type="file"] {
+      font-size: 13px;
+      color: var(--text-muted);
+      padding: 6px 0;
+    }
+
+    /* Ferramentas Grid */
+    #tools {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+      width: 100%;
+      margin: 8px 0;
+    }
+
+    .tool {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      padding: 16px;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .tool h3 {
+      margin: 0;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #ffffff;
+    }
+
+    .tool h3 span {
+      flex: 1;
+      min-width: 0;
+    }
+
+    button.info {
+      margin-left: auto;
+      width: 22px;
+      height: 22px;
+      padding: 0;
+      flex: 0 0 22px;
+      border-radius: 50%;
+      border: 1px solid var(--accent);
+      background: transparent;
+      color: var(--accent);
+      font-family: Georgia, "Times New Roman", serif;
+      font-style: italic;
+      font-weight: 700;
+      font-size: 13px;
+      line-height: 1;
+      box-shadow: none;
+    }
+
+    button.info:hover:not(:disabled) {
+      background: rgba(56, 189, 248, 0.12);
+      color: var(--accent);
+      box-shadow: none;
+    }
+
+    dialog#module-info {
+      background: var(--bg-surface);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 20px 22px 22px;
+      width: min(560px, calc(100vw - 32px));
+      max-height: min(80vh, 720px);
+      overflow: auto;
+    }
+
+    dialog#module-info::backdrop {
+      background: rgba(0, 0, 0, 0.55);
+    }
+
+    .module-info-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    dialog#module-info h2 {
+      margin: 0;
+      border: none;
+      padding: 0;
+      font-size: 18px;
+    }
+
+    #module-info-body {
+      margin: 8px 0 0;
+    }
+
+    #module-info-body dt {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent);
+      margin-top: 14px;
+    }
+
+    #module-info-body dd {
+      margin: 4px 0 0;
+      color: var(--text-main);
+      font-size: 14px;
+    }
+
+    button#module-info-close {
+      background: transparent;
+      color: var(--text-muted);
+      border: 1px solid var(--border-color);
+      padding: 6px 12px;
+      font-size: 13px;
+      box-shadow: none;
+    }
+
+    button#module-info-close:hover:not(:disabled) {
+      border-color: var(--text-main);
+      color: var(--text-main);
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .tool input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    .tool label {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .tool input[type="number"], .tool input[type="text"] {
+      padding: 6px 10px;
+      font-size: 13px;
+      margin-top: 4px;
+    }
+
+    /* Botões */
+    .actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    button {
+      background: var(--accent);
+      color: #090d16;
+      border: none;
+      padding: 10px 20px;
+      font-weight: 600;
+      font-size: 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    button:hover:not(:disabled) {
+      background: var(--accent-hover);
+      box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    button#stop {
+      background: var(--danger-bg);
+      color: var(--danger);
+      border: 1px solid var(--danger);
+    }
+    button#stop:hover:not(:disabled) {
+      background: var(--danger);
+      color: #fff;
+    }
+
+    button#export-pdf, button#export-docx {
+      background: var(--bg-card);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+    }
+    button#export-pdf:hover:not(:disabled), button#export-docx:hover:not(:disabled) {
+      border-color: var(--text-main);
+    }
+
+    button.link {
+      background: none;
+      border: none;
+      padding: 0;
+      color: var(--accent);
+      cursor: pointer;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 500;
+    }
+    button.link:hover {
+      text-decoration: underline;
+    }
+
+    button.icon-danger {
+      background: transparent;
+      color: var(--danger);
+      border: 1px solid transparent;
+      padding: 6px;
+      min-width: 32px;
+      min-height: 32px;
+    }
+    button.icon-danger:hover:not(:disabled) {
+      background: var(--danger-bg);
+      border-color: var(--danger);
+      box-shadow: none;
+    }
+    button.icon-danger svg {
+      width: 16px;
+      height: 16px;
+      display: block;
+    }
+    td.actions {
+      white-space: nowrap;
+      width: 1%;
+    }
+    td.actions .link {
+      margin-right: 8px;
+    }
+
+    /* Status Badges */
+    .status {
+      font: 12px 'JetBrains Mono', monospace;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-weight: 500;
+      display: inline-block;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .status.ok, .status.skip { background: var(--success-bg); color: var(--success); border: 1px solid rgba(34, 197, 94, 0.3); }
+    .status.failed, .status.fail, .status.cancelled { background: var(--danger-bg); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.3); }
+    .status.running { background: var(--warning-bg); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.3); }
+    .status.pending { background: rgba(156, 163, 175, 0.1); color: var(--text-muted); border: 1px solid var(--border-color); }
+
+    /* Tabelas */
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+      border-radius: var(--radius);
+      border: 1px solid var(--border-color);
+      background: var(--bg-surface);
+      margin: 16px 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 14px;
+    }
+
+    th, td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-color);
+      vertical-align: middle;
+    }
+
+    th {
+      font: 12px 'JetBrains Mono', monospace;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    tr:last-child td { border-bottom: none; }
+    tbody tr:hover { background: rgba(255, 255, 255, 0.02); }
+
+    /* Fluxo de fases */
+    .flow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 16px 0;
+    }
+
+    .flow span {
+      border-radius: 8px;
+      padding: 8px 14px;
+      background: var(--bg-surface);
+      font-size: 13px;
+      border: 1px solid var(--border-color);
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .flow span.current {
+      border-color: var(--accent);
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.2);
+    }
+
+    /* Seção de IA */
+    #ai-consult {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      padding: 24px;
+      border-radius: var(--radius);
+      margin: 32px 0;
+    }
+
+    #ai-consult-input {
+      width: 100%;
+      min-height: 100px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    #ai-consult-count.over { color: var(--danger); font-weight: bold; }
+
+    #ai-reply {
+      background: var(--bg-main);
+      border: 1px solid var(--border-color);
+      padding: 16px;
+      border-radius: 8px;
+      min-height: 90px;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: #38bdf8;
+      margin-top: 12px;
+    }
+
+    #scan-msg {
+      margin-top: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--accent);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <div>
+        <h1 data-i18n="ui.title">Recon — Controle</h1>
+        <p data-i18n="ui.subtitle">Inicia scan com o mesmo spec do CLI. A leitura dos runs da fase 6 permanece.</p>
+      </div>
+      <label class="lang-label"><span data-i18n="ui.lang">Idioma</span>
+        <select id="lang">
+          <option value="pt-BR">pt-BR</option>
+          <option value="en-US">en-US</option>
+          <option value="es-ES">es-ES</option>
+        </select>
+      </label>
+      <div id="totals" class="note" style="font-family: 'JetBrains Mono', monospace; font-size: 13px; background: var(--bg-card); padding: 8px 14px; border-radius: 8px; border: 1px solid var(--border-color);"></div>
+    </div>
+  </header>
+  
+  <main>
+    <h2 data-i18n="ui.new_scan">Novo Scan</h2>
+    <form id="scan-form">
+      <label><span data-i18n="ui.target">Alvo (domínio ou IP:PORT)</span>
+        <input id="target-input" name="target" required placeholder="example.com">
+      </label>
+      <label><span data-i18n="ui.scope">Escopo (um por linha)</span>
+        <textarea id="in-scope" placeholder="example.com"></textarea>
+      </label>
+      <label><span data-i18n="ui.out_scope">Fora do escopo</span>
+        <textarea id="out-scope" placeholder="dev.example.com"></textarea>
+      </label>
+      <label><span data-i18n="ui.threads">Threads</span>
+        <input id="threads" type="number" min="1" max="200" value="50">
+      </label>
+      <label><span data-i18n="ui.har">HAR (opcional)</span>
+        <input id="har-file" type="file" accept=".har,application/json">
+      </label>
+      <label><span data-i18n="ui.har_b">HAR conta B (opcional)</span>
+        <input id="har-b-file" type="file" accept=".har,application/json">
+      </label>
+      <p class="note note-har" data-i18n="ui.har_note">Sem arquivo o scan corre como hoje. Com HAR, URLs e JS no escopo entram no mesmo run antes da IA (máx. 32 MB por arquivo). HAR conta B é a mesma jornada com outra conta de teste.</p>
+      <label><span data-i18n="ui.ai_delay">Intervalo entre prompts (ms)</span>
+        <input id="ai-delay-ms" type="number" min="10" max="600000" value="2000" step="10">
+      </label>
+      <p class="note" data-i18n="ui.ai_delay_note">Padrão 2000 ms (2 s). Mínimo 10 ms, máximo 10 minutos (600000 ms). Vale para Ollama e nuvem.</p>
+      <label class="inline"><input id="cloud" type="checkbox"> <span data-i18n="ui.cloud">IA em nuvem (Groq, NVIDIA; Gemini e DeepSeek desligados)</span></label>
+      <label><span data-i18n="ui.cloud_mode">Ordem das IAs em nuvem</span>
+        <select id="cloud-mode">
+          <option value="sequential" data-i18n="ui.cloud_mode_sequential">Sequencial (fallback: Groq → NVIDIA)</option>
+          <option value="parallel" data-i18n="ui.cloud_mode_parallel">Paralelo (balanceamento entre as chaves disponíveis)</option>
+        </select>
+      </label>
+      <p class="note" data-i18n="ui.cloud_note">Opt-in. Hosts e IPs viram tokens antes do envio. Consultar a IA continua no modelo local. Ativos: Groq e NVIDIA. Gemini e DeepSeek estão desligados por enquanto (cota/saldo). Chaves só no ambiente, nunca no spec.</p>
+      <div id="tools"></div>
+      <div class="actions">
+        <button type="submit" id="start" data-i18n="ui.start">Iniciar Scan</button>
+        <button type="button" id="stop" data-i18n="ui.stop" disabled>Interromper</button>
+        <button type="button" id="export-pdf" data-i18n="ui.export_pdf" disabled>Relatório PDF</button>
+        <button type="button" id="export-docx" data-i18n="ui.export_docx" disabled>Relatório Word</button>
+      </div>
+    </form>
+    <p id="scan-msg" class="note"></p>
+    <dialog id="module-info" aria-labelledby="module-info-title">
+      <div class="module-info-head">
+        <h2 id="module-info-title"></h2>
+        <button type="button" id="module-info-close" data-i18n="ui.close">Fechar</button>
+      </div>
+      <p id="module-info-phase" class="note"></p>
+      <dl id="module-info-body"></dl>
+    </dialog>
+    <div class="flow" id="flow"></div>
+
+    <section id="ai-consult">
+      <h2 style="margin-top:0; border-bottom: none; padding-bottom: 0;" data-i18n="ui.consult">Consultar a IA</h2>
+      <p class="note" style="margin-bottom: 16px;"><span data-i18n="ui.consult_before">Prompt livre ao</span> <span id="ai-consult-model" style="color: var(--accent); font-family: 'JetBrains Mono', monospace;">qwen2.5:7b</span><span data-i18n="ui.consult_after">. Não corre a fase de classificação/rotas do scan.</span></p>
+      <label><span data-i18n="ui.prompt">Prompt</span>
+        <textarea id="ai-consult-input" placeholder="Pergunte ao modelo local…"></textarea>
+      </label>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px; flex-wrap: wrap; gap: 8px;">
+        <p id="ai-consult-count" class="note" style="font-family: 'JetBrains Mono', monospace;">estimado 0 / 12884</p>
+        <p id="ai-consult-hint" class="note"></p>
+      </div>
+      <div class="actions" style="margin-top: 16px;">
+        <button type="button" id="ai-consult-send" data-i18n="ui.send" disabled>Enviar</button>
+      </div>
+      <h3 style="font-size: 15px; margin: 20px 0 8px; color: #ffffff;" data-i18n="ui.ai_reply">Resposta da IA</h3>
+      <pre id="ai-reply"></pre>
+    </section>
+
+    <h2 data-i18n="ui.runs">Runs</h2>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr><th data-i18n="ui.th_target">Alvo</th><th data-i18n="ui.th_status">Status</th><th data-i18n="ui.th_start">Início</th><th data-i18n="ui.th_end">Fim</th><th data-i18n="ui.th_run">Run ID</th><th></th></tr>
+        </thead>
+        <tbody id="runs"></tbody>
+      </table>
+    </div>
+
+    <section id="detail" hidden style="background: var(--bg-surface); border: 1px solid var(--border-color); padding: 24px; border-radius: var(--radius); margin-top: 32px;">
+      <h2 style="margin-top:0;"><span data-i18n="ui.run">Run</span> <span id="detail-id" style="font-family: 'JetBrains Mono', monospace; color: var(--accent);"></span></h2>
+      <div class="counts" id="counts"></div>
+      
+      <h2 data-i18n="ui.phases">Fases</h2>
+      <div class="table-container">
+        <table>
+          <thead><tr><th data-i18n="ui.th_phase">Fase</th><th data-i18n="ui.th_status">Status</th><th data-i18n="ui.th_seconds">Segundos</th><th data-i18n="ui.th_detail">Detalhe</th></tr></thead>
+          <tbody id="phases"></tbody>
+        </table>
+      </div>
+
+      <h2 data-i18n="ui.delta">Delta</h2>
+      <p id="baseline" class="note" style="margin-bottom: 12px;"></p>
+      <div class="table-container">
+        <table>
+          <thead><tr><th data-i18n="ui.th_change">Mudança</th><th data-i18n="ui.th_type">Tipo</th><th data-i18n="ui.th_key">Chave</th><th data-i18n="ui.th_before">Antes</th><th data-i18n="ui.th_after">Depois</th></tr></thead>
+          <tbody id="delta"></tbody>
+        </table>
+      </div>
+
+      <h2 data-i18n="ui.ai_analysis">Análise da IA</h2>
+      <p id="ai-meta" class="note" style="margin-bottom: 12px;"></p>
+      <div class="table-container">
+        <table>
+          <thead><tr><th data-i18n="ui.th_decision">Decisão</th><th data-i18n="ui.th_severity">Severidade</th><th data-i18n="ui.th_finding">Finding</th><th data-i18n="ui.th_reason">Motivo</th><th data-i18n="ui.th_url">URL</th></tr></thead>
+          <tbody id="classification"></tbody>
+        </table>
+      </div>
+
+      <h2 data-i18n="ui.ai_routes">Rotas da Análise</h2>
+      <div class="table-container">
+        <table>
+          <thead><tr><th data-i18n="ui.th_path">Path</th><th data-i18n="ui.th_method">Método</th></tr></thead>
+          <tbody id="routes"></tbody>
+        </table>
+      </div>
+
+      <section id="drafts-block" hidden>
+        <h2 data-i18n="ui.drafts">Rascunhos</h2>
+        <p class="note" data-i18n="ui.drafts_note" style="margin-bottom: 12px;">Um rascunho por cluster reportável, no formato de envio. Candidatos de cobertura ficam no caderno.</p>
+        <div class="table-container">
+          <table>
+            <thead><tr><th data-i18n="ui.th_status">Status</th><th>CWE</th><th data-i18n="ui.th_template">Template</th><th data-i18n="ui.th_name">Nome</th><th data-i18n="ui.th_count">N</th><th></th></tr></thead>
+            <tbody id="drafts"></tbody>
+          </table>
+        </div>
+        <pre id="draft-md" class="note" hidden style="white-space: pre-wrap; margin-top: 12px;"></pre>
+      </section>
+
+      <h2 data-i18n="ui.candidates">Candidatos</h2>
+      <p class="note" data-i18n="ui.candidates_note" style="margin-bottom: 12px;">Joins corr/… — não são CVE confirmadas. Usar como fila de revisão.</p>
+      <div class="table-container">
+        <table>
+          <thead><tr><th data-i18n="ui.th_severity">Severidade</th><th data-i18n="ui.th_template">Template</th><th data-i18n="ui.th_name">Nome</th><th data-i18n="ui.th_url">URL</th></tr></thead>
+          <tbody id="candidates"></tbody>
+        </table>
+      </div>
+
+      <h2 data-i18n="ui.checklist">Checklist Bug Bounty</h2>
+      <p id="checklist" class="note" style="font-family: 'JetBrains Mono', monospace; background: var(--bg-main); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); color: var(--text-main);"></p>
+    </section>
+
+    <h2 data-i18n="ui.report">Relatório</h2>
+    <form id="filters" style="display: flex; gap: 16px; flex-wrap: wrap; align-items: end;">
+      <label style="flex: 1; min-width: 200px;"><span data-i18n="ui.filter_target">Alvo</span><select id="target"></select></label>
+      <label style="flex: 1; min-width: 200px;"><span data-i18n="ui.filter_kind">Kind</span><select id="kind">
+        <option value="" data-i18n="ui.kind_all">todos</option>
+        <option>subdomain</option>
+        <option>host</option>
+        <option>live</option>
+        <option>unauthorized</option>
+        <option>forbidden</option>
+      </select></label>
+      <label style="flex: 1; min-width: 200px;"><span data-i18n="ui.filter_severity">Severidade</span><select id="severity">
+        <option value="" data-i18n="ui.severity_all">todas</option>
+        <option>info</option>
+        <option>low</option>
+        <option>medium</option>
+        <option>high</option>
+        <option>critical</option>
+      </select></label>
+      <button type="submit" data-i18n="ui.refresh">Atualizar</button>
+    </form>
+    <p id="report-totals" class="note" style="margin: 16px 0 8px; font-family: 'JetBrains Mono', monospace;"></p>
+    
+    <div class="table-container">
+      <table>
+        <thead><tr><th data-i18n="ui.th_target">Alvo</th><th data-i18n="ui.th_kind">Kind</th><th data-i18n="ui.th_value">Valor</th></tr></thead>
+        <tbody id="assets"></tbody>
+      </table>
+    </div>
+
+    <div class="table-container">
+      <table>
+        <thead><tr><th data-i18n="ui.th_target">Alvo</th><th data-i18n="ui.th_severity">Severidade</th><th data-i18n="ui.th_template">Template</th><th data-i18n="ui.th_url">URL</th></tr></thead>
+        <tbody id="findings"></tbody>
+      </table>
+    </div>
+  </main>
+
+  <script>
+    const text = (value) => value == null || value === "" ? "—" : String(value);
+    const INFO_FIELDS = ["what", "input", "output", "place", "correlation"];
+    const LOCALES = ["pt-BR", "en-US", "es-ES"];
+    let lang = localStorage.getItem("recon.lang") || "pt-BR";
+    if (!LOCALES.includes(lang)) lang = "pt-BR";
+    let messages = {};
+    let activeId = null;
+    let poller = null;
+    let catalog = [];
+    let inputBudget = 12884;
+    let consultBusy = false;
+    let scanRunning = false;
+
+    function cell(row, value) {
+      const td = document.createElement("td");
+      td.textContent = text(value);
+      row.appendChild(td);
+    }
+
+    function fill(body, rows, columns) {
+      body.replaceChildren();
+      for (const item of rows) {
+        const tr = document.createElement("tr");
+        for (const column of columns) cell(tr, item[column]);
+        body.appendChild(tr);
+      }
+    }
+
+    function lines(value) {
+      return value.split(/\n+/).map((item) => item.trim()).filter(Boolean);
+    }
+
+    function tr(key, params) {
+      let value = Object.prototype.hasOwnProperty.call(messages, key) ? messages[key] : key;
+      if (params) {
+        for (const [name, item] of Object.entries(params)) {
+          value = value.replaceAll("{" + name + "}", String(item));
+        }
+      }
+      return value;
+    }
+
+    function applyStatic() {
+      document.documentElement.lang = lang;
+      document.querySelectorAll("[data-i18n]").forEach((node) => {
+        node.textContent = tr(node.dataset.i18n);
+      });
+      const prompt = document.querySelector("#ai-consult-input");
+      if (prompt) prompt.placeholder = tr("ui.prompt_placeholder");
+      const select = document.querySelector("#lang");
+      if (select) select.value = lang;
+      syncConsultButton();
+    }
+
+    async function loadCatalog(next) {
+      const response = await fetch("/api/i18n?lang=" + encodeURIComponent(next));
+      const payload = await response.json();
+      if (!response.ok) {
+        document.querySelector("#scan-msg").textContent = payload.error || String(response.status);
+        return false;
+      }
+      lang = payload.lang;
+      messages = payload.messages || {};
+      localStorage.setItem("recon.lang", lang);
+      applyStatic();
+      return true;
+    }
+
+    async function loadTools() {
+      const previous = catalog.length ? collectSpec().tools : null;
+      catalog = await fetch("/api/tools?lang=" + encodeURIComponent(lang)).then((response) => response.json());
+      const root = document.querySelector("#tools");
+      root.replaceChildren();
+      for (const tool of catalog) {
+        const box = document.createElement("div");
+        box.className = "tool";
+        const title = document.createElement("h3");
+        const check = document.createElement("input");
+        check.type = "checkbox";
+        check.checked = previous && previous[tool.name] ? previous[tool.name].enabled : true;
+        check.dataset.tool = tool.name;
+        const name = document.createElement("span");
+        name.textContent = tool.name + " · " + tool.phase;
+        const info = document.createElement("button");
+        info.type = "button";
+        info.className = "info";
+        info.textContent = "i";
+        info.setAttribute("aria-label", tr("ui.info_about", { name: tool.name }));
+        info.addEventListener("click", () => openModuleInfo(tool));
+        title.append(check, name, info);
+        box.appendChild(title);
+        for (const param of tool.params) {
+          const label = document.createElement("label");
+          const caption = document.createElement("span");
+          caption.textContent = tr("ui.param_default", { name: param.name, value: param.default });
+          const input = document.createElement("input");
+          input.dataset.tool = tool.name;
+          input.dataset.param = param.name;
+          input.dataset.type = param.type;
+          const kept = previous && previous[tool.name] ? previous[tool.name][param.name] : null;
+          input.value = kept == null ? param.default : kept;
+          if (param.type === "int") {
+            input.type = "number";
+            if (param.min != null) input.min = param.min;
+            if (param.max != null) input.max = param.max;
+          }
+          label.append(caption, input);
+          box.appendChild(label);
+        }
+        root.appendChild(box);
+      }
+    }
+
+    function openModuleInfo(tool) {
+      const dialog = document.querySelector("#module-info");
+      document.querySelector("#module-info-title").textContent = tool.name;
+      document.querySelector("#module-info-phase").textContent = tr("ui.phase_label", { name: tool.phase });
+      const body = document.querySelector("#module-info-body");
+      body.replaceChildren();
+      const help = tool.help || {};
+      for (const key of INFO_FIELDS) {
+        const term = document.createElement("dt");
+        term.textContent = tr("ui.help_" + key);
+        const detail = document.createElement("dd");
+        detail.textContent = help[key] || "—";
+        body.append(term, detail);
+      }
+      if (typeof dialog.showModal === "function" && !dialog.open) dialog.showModal();
+    }
+
+    function collectSpec() {
+      const target = document.querySelector("#target-input").value.trim();
+      const spec = {
+        target,
+        threads: Number(document.querySelector("#threads").value || 50),
+        in_scope: lines(document.querySelector("#in-scope").value || target),
+        out_scope: lines(document.querySelector("#out-scope").value),
+        lang,
+        cloud: document.querySelector("#cloud").checked,
+        ai_delay_ms: Number(document.querySelector("#ai-delay-ms").value || 2000),
+        cloud_mode: document.querySelector("#cloud-mode").value || "sequential",
+        tools: {},
+      };
+      for (const tool of catalog) {
+        const enabled = document.querySelector(`input[data-tool="${tool.name}"][type="checkbox"]`).checked;
+        const item = { enabled };
+        for (const param of tool.params) {
+          const input = document.querySelector(`input[data-tool="${tool.name}"][data-param="${param.name}"]`);
+          item[param.name] = param.type === "int" ? Number(input.value) : input.value;
+        }
+        spec.tools[tool.name] = item;
+      }
+      return spec;
+    }
+
+    function estimatePromptTokens(value) {
+      if (!value) return 0;
+      return Math.max(1, Math.ceil(new TextEncoder().encode(value).length / 3));
+    }
+
+    function syncConsultButton() {
+      document.querySelector("#start").disabled = scanRunning;
+      const prompt = document.querySelector("#ai-consult-input").value;
+      const trimmed = prompt.trim();
+      const estimated = estimatePromptTokens(trimmed ? prompt : "");
+      const over = estimated > inputBudget;
+      const send = document.querySelector("#ai-consult-send");
+      send.disabled = consultBusy || scanRunning || !trimmed || over;
+      const counter = document.querySelector("#ai-consult-count");
+      counter.textContent = tr("ui.estimated", { n: estimated, budget: inputBudget });
+      counter.classList.toggle("over", over);
+      const hint = document.querySelector("#ai-consult-hint");
+      if (scanRunning) hint.textContent = tr("ui.ai_busy");
+      else if (over) hint.textContent = tr("ui.over_budget");
+      else if (consultBusy) hint.textContent = tr("ui.waiting_model");
+      else hint.textContent = "";
+    }
+
+    function setActive(id, running) {
+      activeId = id;
+      document.querySelector("#stop").disabled = !running;
+      document.querySelector("#export-pdf").disabled = !id || running;
+      document.querySelector("#export-docx").disabled = !id || running;
+      if (running) scanRunning = true;
+      syncConsultButton();
+    }
+
+    function renderFlow(flow, current) {
+      const root = document.querySelector("#flow");
+      root.replaceChildren();
+      for (const item of flow || []) {
+        const mark = document.createElement("span");
+        mark.className = "status " + (item.status || "pending");
+        if (item.name === current) mark.classList.add("current");
+        mark.textContent = item.name + " · " + (item.status || "pending");
+        root.appendChild(mark);
+      }
+    }
+
+    async function loadRun(id) {
+      const view = await fetch("/api/runs/" + id + "?lang=" + encodeURIComponent(lang)).then((response) => response.json());
+      if (view.error) return;
+      document.querySelector("#detail").hidden = false;
+      document.querySelector("#detail-id").textContent = id;
+      const counts = document.querySelector("#counts");
+      counts.replaceChildren();
+      const running = view.run.status === "running";
+      const classified = (view.classification && view.classification.items) || [];
+      const cards = [
+        ...view.assets.map((item) => [item.name, item.count]),
+        ["urls", view.urls],
+        ["rotas", view.routes.length],
+        ["classificações", classified.length],
+      ];
+      for (const finding of view.findings) cards.push(["finding " + (finding.name || "sem severidade"), finding.count]);
+      for (const [name, count] of cards) {
+        const box = document.createElement("div");
+        const strong = document.createElement("strong");
+        strong.textContent = count;
+        box.append(strong, document.createTextNode(name));
+        counts.appendChild(box);
+      }
+      fill(document.querySelector("#phases"), view.phases, ["name", "status", "duration_s", "detail"]);
+      document.querySelector("#baseline").textContent = view.baseline_id
+        ? tr("ui.base", { id: view.baseline_id })
+        : tr("ui.no_delta");
+      fill(document.querySelector("#delta"), view.delta, ["change", "entity", "key", "before", "after"]);
+      const aiBits = (view.ai || []).map((item) => {
+        const model = item.model || "nenhum";
+        return item.task + ": " + item.provider + " · " + model;
+      });
+      document.querySelector("#ai-meta").textContent = aiBits.length
+        ? aiBits.join(" · ")
+        : tr("ui.no_ai");
+      fill(document.querySelector("#classification"), classified, ["decision", "severity", "name", "reason", "matched_at"]);
+      fill(document.querySelector("#routes"), view.routes, ["path", "method"]);
+      fill(document.querySelector("#candidates"), view.candidates || [], ["severity", "template_id", "name", "matched_at"]);
+      const drafts = view.drafts || [];
+      const draftsBlock = document.querySelector("#drafts-block");
+      draftsBlock.hidden = drafts.length === 0;
+      const draftsBody = document.querySelector("#drafts");
+      draftsBody.replaceChildren();
+      for (const item of drafts) {
+        const row = document.createElement("tr");
+        for (const key of ["status", "cwe", "template_id", "title", "count"]) {
+          const td = document.createElement("td");
+          td.textContent = item[key] == null ? "" : String(item[key]);
+          row.appendChild(td);
+        }
+        const actions = document.createElement("td");
+        const exportBtn = document.createElement("button");
+        exportBtn.type = "button";
+        exportBtn.textContent = tr("ui.export_draft");
+        exportBtn.disabled = running;
+        exportBtn.addEventListener("click", () => {
+          window.location = "/api/runs/" + id + "/export?format=pdf&draft=" + encodeURIComponent(item.cluster_key) + "&lang=" + encodeURIComponent(lang);
+        });
+        const readyBtn = document.createElement("button");
+        readyBtn.type = "button";
+        readyBtn.textContent = tr("ui.draft_ready");
+        readyBtn.disabled = running;
+        readyBtn.addEventListener("click", async () => {
+          await fetch("/api/runs/" + id + "/drafts/" + encodeURIComponent(item.cluster_key), {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ status: "ready" }),
+          });
+          await loadRun(id);
+        });
+        const rejectBtn = document.createElement("button");
+        rejectBtn.type = "button";
+        rejectBtn.textContent = tr("ui.draft_rejected");
+        rejectBtn.disabled = running;
+        rejectBtn.addEventListener("click", async () => {
+          await fetch("/api/runs/" + id + "/drafts/" + encodeURIComponent(item.cluster_key), {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ status: "rejected" }),
+          });
+          await loadRun(id);
+        });
+        const openBtn = document.createElement("button");
+        openBtn.type = "button";
+        openBtn.textContent = tr("ui.draft_open");
+        openBtn.addEventListener("click", async () => {
+          const payload = await fetch("/api/runs/" + id + "/drafts/" + encodeURIComponent(item.cluster_key)).then((r) => r.json());
+          const box = document.querySelector("#draft-md");
+          box.hidden = false;
+          box.textContent = payload.markdown || payload.error || "";
+        });
+        actions.append(exportBtn, openBtn, readyBtn, rejectBtn);
+        row.appendChild(actions);
+        draftsBody.appendChild(row);
+      }
+      const checklist = view.checklist || [];
+      document.querySelector("#checklist").textContent = checklist.length
+        ? checklist.join(" · ")
+        : tr("ui.no_checklist");
+      renderFlow(view.flow, view.current_phase);
+      setActive(id, running);
+      return view;
+    }
+
+    async function loadRuns() {
+      const runs = await fetch("/api/runs").then((response) => response.json());
+      if (!Array.isArray(runs)) return;
+      const totals = { ok: 0, failed: 0, running: 0, cancelled: 0 };
+      const targets = new Set();
+      const body = document.querySelector("#runs");
+      body.replaceChildren();
+      for (const run of runs) {
+        totals[run.status] = (totals[run.status] || 0) + 1;
+        targets.add(run.target);
+        const row = document.createElement("tr");
+        cell(row, run.target);
+        const status = document.createElement("td");
+        const mark = document.createElement("span");
+        mark.className = "status " + run.status;
+        mark.textContent = run.status;
+        status.appendChild(mark);
+        row.appendChild(status);
+        cell(row, run.started_at);
+        cell(row, run.finished_at);
+        const action = document.createElement("td");
+        action.className = "actions";
+        const button = document.createElement("button");
+        button.className = "link";
+        button.type = "button";
+        button.textContent = run.id.slice(0, 8);
+        button.addEventListener("click", () => loadRun(run.id));
+        action.appendChild(button);
+        row.appendChild(action);
+        const trashCell = document.createElement("td");
+        trashCell.className = "actions";
+        const trash = document.createElement("button");
+        trash.type = "button";
+        trash.className = "icon-danger";
+        trash.setAttribute("aria-label", tr("ui.delete"));
+        trash.title = tr("ui.delete");
+        trash.disabled = run.status === "running";
+        trash.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>';
+        trash.addEventListener("click", () => deleteRun(run));
+        trashCell.appendChild(trash);
+        row.appendChild(trashCell);
+        body.appendChild(row);
+      }
+      document.querySelector("#totals").textContent =
+        `${runs.length} runs · ${totals.ok || 0} ok · ${totals.failed || 0} failed · ${totals.cancelled || 0} cancelled · ${totals.running || 0} running`;
+      scanRunning = (totals.running || 0) > 0;
+      syncConsultButton();
+      const target = document.querySelector("#target");
+      const current = target.value;
+      target.replaceChildren();
+      const all = document.createElement("option");
+      all.value = "";
+      all.textContent = tr("ui.kind_all");
+      target.appendChild(all);
+      for (const name of [...targets].sort()) {
+        const option = document.createElement("option");
+        option.value = name;
+        option.textContent = name;
+        target.appendChild(option);
+      }
+      target.value = current;
+    }
+
+    async function deleteRun(run) {
+      const ok = window.confirm(tr("ui.delete_confirm", { id: run.id.slice(0, 8), target: run.target }));
+      if (!ok) return;
+      const response = await fetch("/api/runs/" + run.id, { method: "DELETE" });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        window.alert(payload.error || tr("ui.delete_failed"));
+        return;
+      }
+      if (activeId === run.id) {
+        activeId = null;
+        document.querySelector("#detail").hidden = true;
+        setActive(null, false);
+      }
+      await loadRuns();
+      await loadReport();
+    }
+
+    async function loadReport(event) {
+      if (event) event.preventDefault();
+      const params = new URLSearchParams({
+        target: document.querySelector("#target").value,
+        kind: document.querySelector("#kind").value,
+        severity: document.querySelector("#severity").value,
+      });
+      params.set("lang", lang);
+      const report = await fetch("/api/report?" + params).then((response) => response.json());
+      document.querySelector("#report-totals").textContent = tr("ui.report_totals", {
+        assets: report.assets.total,
+        findings: report.findings.total,
+      });
+      fill(document.querySelector("#assets"), report.assets.rows, ["target", "kind", "value"]);
+      fill(document.querySelector("#findings"), report.findings.rows, ["target", "severity", "template_id", "matched_at"]);
+    }
+
+    function watch(id) {
+      if (poller) clearInterval(poller);
+      poller = setInterval(async () => {
+        const view = await loadRun(id);
+        await loadRuns();
+        if (!view || view.run.status !== "running") {
+          clearInterval(poller);
+          poller = null;
+        }
+      }, 1500);
+    }
+
+    document.querySelector("#scan-form").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      if (scanRunning) return;
+      scanRunning = true;
+      syncConsultButton();
+      const spec = collectSpec();
+      const har = document.querySelector("#har-file").files[0];
+      const harB = document.querySelector("#har-b-file").files[0];
+      let response;
+      try {
+        if (har || harB) {
+          const form = new FormData();
+          form.append("spec", JSON.stringify(spec));
+          if (har) form.append("har", har, har.name);
+          if (harB) form.append("har_b", harB, harB.name);
+          response = await fetch("/api/runs", { method: "POST", body: form });
+        } else {
+          response = await fetch("/api/runs", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(spec),
+          });
+        }
+      } catch (exc) {
+        scanRunning = false;
+        syncConsultButton();
+        document.querySelector("#scan-msg").textContent = tr("ui.start_failed");
+        return;
+      }
+      const payload = await response.json();
+      document.querySelector("#scan-msg").textContent = payload.run_id
+        ? "run_id " + payload.run_id
+        : (payload.error || tr("ui.start_failed"));
+      if (payload.run_id) {
+        setActive(payload.run_id, true);
+        watch(payload.run_id);
+        await loadRuns();
+        return;
+      }
+      if (response.status !== 409) scanRunning = false;
+      syncConsultButton();
+    });
+
+    document.querySelector("#stop").addEventListener("click", async () => {
+      if (!activeId) return;
+      await fetch("/api/runs/" + activeId + "/stop", { method: "POST" });
+    });
+
+    function download(fmt) {
+      if (!activeId) return;
+      window.location = "/api/runs/" + activeId + "/export?format=" + fmt + "&lang=" + encodeURIComponent(lang);
+    }
+    document.querySelector("#export-pdf").addEventListener("click", () => download("pdf"));
+    document.querySelector("#export-docx").addEventListener("click", () => download("docx"));
+    document.querySelector("#filters").addEventListener("submit", loadReport);
+    document.querySelector("#target-input").addEventListener("blur", () => {
+      if (!document.querySelector("#in-scope").value.trim()) {
+        document.querySelector("#in-scope").value = document.querySelector("#target-input").value.trim();
+      }
+    });
+    async function loadAiMeta() {
+      const meta = await fetch("/api/ai").then((response) => response.json());
+      if (meta.input_token_budget) inputBudget = meta.input_token_budget;
+      if (meta.model) document.querySelector("#ai-consult-model").textContent = meta.model;
+      syncConsultButton();
+    }
+
+    async function sendConsult() {
+      const prompt = document.querySelector("#ai-consult-input").value;
+      if (document.querySelector("#ai-consult-send").disabled) return;
+      consultBusy = true;
+      syncConsultButton();
+      document.querySelector("#ai-reply").textContent = "";
+      const response = await fetch("/api/ai/complete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt }),
+      });
+      const payload = await response.json();
+      consultBusy = false;
+      if (response.status === 409) scanRunning = true;
+      syncConsultButton();
+      if (payload.error) {
+        document.querySelector("#ai-reply").textContent = payload.error;
+        return;
+      }
+      const bits = [];
+      if (payload.prompt_eval_count != null) bits.push("entrada real " + payload.prompt_eval_count);
+      if (payload.eval_count != null) bits.push("saída " + payload.eval_count);
+      if (payload.estimated_prompt_tokens != null) bits.push("estimado " + payload.estimated_prompt_tokens);
+      document.querySelector("#ai-consult-hint").textContent = bits.join(" · ");
+      document.querySelector("#ai-reply").textContent = payload.content || "";
+    }
+
+    document.querySelector("#ai-consult-input").addEventListener("input", syncConsultButton);
+    document.querySelector("#ai-consult-send").addEventListener("click", sendConsult);
+    const moduleInfo = document.querySelector("#module-info");
+    document.querySelector("#module-info-close").addEventListener("click", () => moduleInfo.close());
+    moduleInfo.addEventListener("click", (event) => {
+      if (event.target === moduleInfo) moduleInfo.close();
+    });
+    document.querySelector("#lang").addEventListener("change", async (event) => {
+      const next = event.target.value;
+      const dialog = document.querySelector("#module-info");
+      if (dialog.open) dialog.close();
+      const ok = await loadCatalog(next);
+      if (!ok) {
+        event.target.value = lang;
+        return;
+      }
+      await loadTools();
+      if (activeId) await loadRun(activeId);
+      await loadReport();
+    });
+    loadCatalog(lang).then((ok) => {
+      if (!ok) return;
+      return loadAiMeta().then(() => loadTools().then(() => loadRuns().then(loadReport)));
+    });
+  </script>
+</body>
+</html>

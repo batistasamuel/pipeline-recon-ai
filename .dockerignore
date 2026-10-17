@@ -1,0 +1,8 @@
+results
+.git
+**/*.pdf
+**/*.docx
+scope/scopes.txt
+config/**
+!config/.gitkeep
+.env

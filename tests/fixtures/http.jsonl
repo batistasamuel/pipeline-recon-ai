@@ -1,0 +1,4 @@
+{"url":"https://example.com","status_code":200,"title":"Example"}
+{"url":"https://api.example.com","status_code":401,"title":"Login"}
+{"url":"https://admin.example.com","status_code":403,"title":"Denied"}
+{"url":"https://old.example.com","status_code":404,"title":"Missing"}

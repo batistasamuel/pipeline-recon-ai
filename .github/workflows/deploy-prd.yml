@@ -1,0 +1,71 @@
+name: Deploy PRD
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag SemVer (ex.: v1.2.0)"
+        required: true
+        type: string
+      confirm:
+        description: "Digite exatamente DEPLOY-PRD para confirmar"
+        required: true
+        type: string
+
+concurrency:
+  group: deploy-prd
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy PRD
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate confirmation
+        env:
+          CONFIRM: ${{ inputs.confirm }}
+        run: |
+          set -euo pipefail
+          if [ "$CONFIRM" != "DEPLOY-PRD" ]; then
+            echo "::error::confirm deve ser exatamente DEPLOY-PRD"
+            exit 1
+          fi
+
+      - name: Validate tag format
+        env:
+          TAG: ${{ inputs.tag }}
+        run: |
+          set -euo pipefail
+          if ! printf '%s' "$TAG" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "::error::tag inválida: '$TAG'. Use vMAJOR.MINOR.PATCH (ex.: v1.2.0)."
+            exit 1
+          fi
+
+      - name: Checkout tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
+          fetch-depth: 0
+
+      - name: Verify tag commit is on main
+        env:
+          TAG: ${{ inputs.tag }}
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin main
+          sha="$(git rev-parse HEAD)"
+          if ! git merge-base --is-ancestor "$sha" origin/main; then
+            echo "::error::O commit da tag $TAG não está contido em main."
+            exit 1
+          fi
+          echo "Tag $TAG → $sha (contida em main)"
+
+      - name: Deploy PRD
+        run: |
+          set -euo pipefail
+          echo "TODO: implementar deploy de produção a partir da tag"
+          echo "TODO: usar secrets e variables do repositório com prefixo PRD_*"
+          echo "TODO: não há GitHub Environments neste plano — a aprovação é disparar este workflow com confirm=DEPLOY-PRD"

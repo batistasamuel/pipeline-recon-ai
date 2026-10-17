@@ -1,0 +1,39 @@
+name: Deploy non-prod
+
+on:
+  push:
+    branches: [dev, hml]
+
+concurrency:
+  group: deploy-nonprod-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy non-prod
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolve target
+        id: target
+        run: |
+          set -euo pipefail
+          if [ "${GITHUB_REF_NAME}" = "dev" ]; then
+            echo "name=DEV" >> "$GITHUB_OUTPUT"
+          else
+            echo "name=HML" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Deploy
+        env:
+          TARGET: ${{ steps.target.outputs.name }}
+        run: |
+          set -euo pipefail
+          echo "TODO: implementar deploy ${TARGET}"
+          echo "TODO: usar secrets e variables do repositório com prefixo ${TARGET}_*"
+          echo "TODO: não há GitHub Environments neste plano — prefixo no nome do secret é a convenção"

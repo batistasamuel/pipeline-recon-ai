@@ -1,0 +1,8 @@
+site:{site} ext:env OR ext:sql OR ext:bak
+site:{site} ext:json "password" OR "api_key" OR "token"
+site:{site} inurl:admin OR inurl:login OR inurl:dashboard
+site:{site} inurl:swagger OR inurl:api-docs OR inurl:openapi.json
+site:{site} inurl:graphql OR intitle:GraphiQL
+site:{site} intitle:"index of" OR intitle:"Index of /"
+site:{site} intext:"s3.amazonaws.com" OR intext:"blob.core.windows.net"
+site:{site} ext:log OR inurl:phpinfo

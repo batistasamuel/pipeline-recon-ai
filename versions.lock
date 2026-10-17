@@ -1,0 +1,38 @@
+# Locked 2026-10-03. Releases estáveis consultados nesse dia.
+# A imagem final não leva o compilador Go.
+
+DEBIAN_IMAGE=debian:13-slim
+DEBIAN_DIGEST=sha256:a99cfc517144bc59b1978475ec53b46ecabec7e43635402ee5b77cc54cd1b20a
+GOLANG_IMAGE=golang:1.27.1-trixie
+GOLANG_DIGEST=sha256:3b77fc618ec235a1ab412de7737f120dd507c57e8d87de4cbb7994fb94275ed5
+
+SUBFINDER_VERSION=2.16.0
+DNSX_VERSION=1.3.1
+HTTPX_VERSION=1.12.0
+KATANA_VERSION=1.7.0
+NUCLEI_VERSION=3.11.1
+GAU_VERSION=2.2.4
+
+# v5.1.1 (2026-04-07) só enumera via engine em 127.0.0.1:4000 e não entrega
+# a lista de nomes no stdout. A fase 1 usa o último release standalone.
+AMASS_VERSION=4.2.0
+
+# Tag git, sem assets de release. Compilado no estágio de build.
+ASSETFINDER_VERSION=0.1.1
+ASSETFINDER_COMMIT=4e95d8701aae8cff1c27af2626eb22ba110ad583
+
+# O release v0.1.0 não publica binário linux/arm64. Os dois archs saem de go install.
+WAYBACKURLS_VERSION=0.1.0
+
+# Release com checksums linux/amd64 e linux/arm64 (goreleaser).
+GODORK_VERSION=1.0.3
+
+# O release publica o checksum, não o tar. A árvore entra pelo commit da tag.
+NUCLEI_TEMPLATES_VERSION=10.4.9
+NUCLEI_TEMPLATES_COMMIT=893122ffce8ebf8e264f15d2cd3960cb1dd36d6c
+
+# Fase 4. A imagem é o índice multi-arch publicado em 2026-10-03.
+# O modelo é a tag qwen2.5:7b (4,7 GB) e só entra com o perfil ai.
+OLLAMA_IMAGE=ollama/ollama
+OLLAMA_DIGEST=sha256:292ee7945dfc3d5840a181f3ab86fedb1e66703e02c8af98b50f4da56b7e278c
+OLLAMA_MODEL=qwen2.5:7b

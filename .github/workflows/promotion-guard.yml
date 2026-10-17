@@ -1,0 +1,56 @@
+name: Promotion Guard
+
+on:
+  pull_request:
+    branches: [dev, hml, main]
+
+concurrency:
+  group: promotion-guard-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  promotion-guard:
+    name: Promotion Guard
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate promotion path
+        env:
+          BASE: ${{ github.base_ref }}
+          HEAD: ${{ github.head_ref }}
+        run: |
+          set -euo pipefail
+          echo "PR $HEAD → $BASE"
+          ok=0
+          case "$BASE" in
+            dev)
+              case "$HEAD" in
+                feature/*|fix/*|chore/*|backport/*) ok=1 ;;
+              esac
+              expected="feature/*, fix/*, chore/* ou backport/*"
+              ;;
+            hml)
+              case "$HEAD" in
+                dev|backport/*) ok=1 ;;
+              esac
+              expected="dev ou backport/*"
+              ;;
+            main)
+              case "$HEAD" in
+                hml|hotfix/*) ok=1 ;;
+              esac
+              expected="hml ou hotfix/*"
+              ;;
+            *)
+              echo "Destino não gerenciado por este guardrail: $BASE"
+              exit 0
+              ;;
+          esac
+          if [ "$ok" -ne 1 ]; then
+            echo "::error::Fluxo de promoção inválido: '$HEAD' → '$BASE'. Origem esperada: $expected."
+            echo "Isto é um aviso visível (plano Free, sem branch protection). Não faça merge com este check vermelho."
+            exit 1
+          fi
+          echo "Caminho de promoção válido."

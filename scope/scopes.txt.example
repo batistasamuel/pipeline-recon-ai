@@ -1,0 +1,3 @@
+# Um domínio por linha. Linhas vazias e texto após # são ignorados.
+# Copie este arquivo para scopes.txt e deixe só domínios autorizados.
+example.com

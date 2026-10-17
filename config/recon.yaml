@@ -1,0 +1,13 @@
+# Copie para config/recon.yaml se quiser limitar alguma ferramenta.
+# O argumento --threads continua sendo o padrão das que não aparecerem aqui.
+threads: 50
+tools:
+  dnsx:
+    threads: 50
+  httpx:
+    threads: 50
+  nuclei:
+    threads: 50
+    rate_limit: 150
+  amass:
+    timeout_minutes: 5

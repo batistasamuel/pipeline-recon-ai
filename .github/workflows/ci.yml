@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [dev, hml, main]
+  push:
+    branches: [dev, hml, main]
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  CI:
+    name: CI
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Lint
+        run: |
+          echo "TODO: definir stack e comando de lint"
+          echo "TODO: falhar o job quando o lint estiver implementado e houver violações"
+
+      - name: Test
+        run: |
+          echo "TODO: definir stack e comando de testes"
+          echo "TODO: falhar o job quando a suíte estiver implementada e houver falhas"

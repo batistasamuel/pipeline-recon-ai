@@ -1,0 +1,13 @@
+---
+description: Texto do projeto, commits e respostas em português do Brasil
+alwaysApply: true
+---
+
+# Português do Brasil
+
+Escreva respostas, commits, interface, mensagens, documentação e comentários novos em português do Brasil.
+
+- Arquivo, não ficheiro. Padrão, não omissão nem defeito. Registro, não registo. Objeto, não objecto. Teto, não tecto. Detecção, não deteção. Usuário, não utilizador. Fato, não facto. Exato, não exacto. Ativo, não activo. Autônomo, não autónomo.
+- Use "tem que" e "têm que". Use "baixar" para download de arquivo.
+- Não reescreva o histórico do git para trocar o idioma de commits antigos.
+- Não traduza identificadores de código, nomes de arquivo, comandos, templates nem termos técnicos em inglês (HAR, finding, host, crawl).

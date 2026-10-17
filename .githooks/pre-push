@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+# Guardrail local: bloqueia push direto em branches de ambiente.
+# Não é proteção do GitHub (plano Free). Convenção reforçada neste clone.
+set -euo pipefail
+
+if [ "${ALLOW_PROTECTED_PUSH:-0}" = "1" ]; then
+  echo "pre-push: ALLOW_PROTECTED_PUSH=1 — bypass consciente. Push na branch de ambiente permitido nesta operação."
+  exit 0
+fi
+
+fail() {
+  cat <<'EOF'
+
+Push direto bloqueado (guardrail local).
+
+As branches de ambiente recebem código somente via Pull Request:
+
+  feature/* | fix/* | chore/*  →  dev
+  dev | backport/*             →  hml
+  hml | hotfix/*               →  main
+
+Abra um PR no GitHub em vez de dar git push nesta branch.
+
+Bypass consciente (bootstrap, emergência documentada):
+
+  ALLOW_PROTECTED_PUSH=1 git push …
+
+Isto NÃO é branch protection. É um hook neste clone.
+Em um clone novo: ./scripts/setup-hooks.sh
+
+EOF
+  exit 1
+}
+
+blocked=0
+while read -r _local_ref _local_sha remote_ref _remote_sha; do
+  case "$remote_ref" in
+    refs/heads/dev|refs/heads/hml|refs/heads/main)
+      blocked=1
+      ;;
+  esac
+done
+
+if [ "$blocked" -eq 1 ]; then
+  fail
+fi
+
+exit 0

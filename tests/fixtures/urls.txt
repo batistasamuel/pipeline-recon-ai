@@ -1,0 +1,5 @@
+https://example.com/a
+https://www.example.com/app.js
+https://notexample.com/app.js
+https://evil.example.com.other.net/a
+https://example.com/\/www.google.com\/recaptcha\/api.js
